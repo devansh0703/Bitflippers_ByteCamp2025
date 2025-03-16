@@ -1,0 +1,6 @@
+pydantic
+fastapi
+uvicorn
+supabase
+typing
+google.generativeai
