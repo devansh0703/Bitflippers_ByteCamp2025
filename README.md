@@ -5,7 +5,7 @@ Smart Circular Cities is a full-stack web application designed to empower Mumbai
 ## Quick Start
 
 ```bash
-git clone https://github.com/devansh0703/ByteCamp.git
+git clone https://github.com/devansh0703/Bitflippers_ByteCamp2025.git
 cd ByteCamp
 npm install --force
 pip install -r requirements.txt
@@ -67,8 +67,8 @@ npm run dev
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/devansh0703/ByteCamp.git
-cd ByteCamp/
+git clone https://github.com/devansh0703/Bitflippers_ByteCamp2025.git
+cd Bitflippers_ByteCamp2025/
 ```
 
 ### Install Dependencies
