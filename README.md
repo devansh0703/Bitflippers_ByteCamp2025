@@ -36,6 +36,28 @@ npm run dev
 ### Leaderboard
 - Displays users sorted by points, promoting healthy competition and community engagement
 
+## UI
+
+![Screenshot 1](images/s1.png)
+
+![Screenshot 2](images/s2.png)
+
+![Screenshot 3](images/s3.png)
+
+![Screenshot 4](images/s4.png)
+
+![Screenshot 5](images/s5.png)
+
+![Screenshot 6](images/s6.png)
+
+![Screenshot 7](images/s7.png)
+
+![Screenshot 8](images/s8.png)
+
+![Screenshot 9](images/s9.png)
+
+![Screenshot 10](images/s10.png)
+
 ## Installation & Setup
 
 ### Prerequisites
