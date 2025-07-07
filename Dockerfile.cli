@@ -1,0 +1,23 @@
+# CLI Dockerfile with ROS 2
+FROM ros:humble-desktop
+
+WORKDIR /workspace
+
+# Install Python dependencies
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-yaml \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy CLI tool
+COPY rosphere_cli.py /usr/local/bin/rosphere
+RUN chmod +x /usr/local/bin/rosphere
+
+# Install Python packages
+RUN pip3 install pyyaml requests
+
+# Setup ROS environment
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+# Entry point
+ENTRYPOINT ["/usr/local/bin/rosphere"]

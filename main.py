@@ -346,6 +346,391 @@ def leaderboard():
     response = supabase.table("users").select("*").order("points", desc=True).execute()
     return response.data if response.data is not None else []
 
+# ============================
+# ROSphere API Endpoints
+# ============================
+
+# ROSphere Data Models
+class WorkspaceConfig(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    rosDistro: str
+    buildTool: str
+    path: str
+
+class PackageConfig(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    maintainer: str
+    email: str
+    license: str
+    language: str
+    packageType: str
+    dependencies: Optional[List[str]] = []
+    nodeTypes: Optional[List[str]] = []
+
+class ProjectGenerationRequest(BaseModel):
+    workspace: WorkspaceConfig
+    package: PackageConfig
+
+class GeneratedFile(BaseModel):
+    path: str
+    content: str
+    type: str
+
+class ProjectGenerationResponse(BaseModel):
+    success: bool
+    message: str
+    files: List[GeneratedFile]
+    workspace_path: str
+
+# ROS 2 Project Generator Functions
+def generate_package_xml(package: PackageConfig) -> str:
+    """Generate package.xml content"""
+    dependencies = package.dependencies or []
+    
+    xml_content = f'''<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematyp="xml"?>
+<package format="3">
+  <name>{package.name}</name>
+  <version>0.0.0</version>
+  <description>{package.description or f"The {package.name} package"}</description>
+
+  <maintainer email="{package.email}">{package.maintainer}</maintainer>
+
+  <license>{package.license}</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+'''
+    
+    # Add dependencies
+    for dep in dependencies:
+        xml_content += f'  <depend>{dep}</depend>\n'
+    
+    # Add default test dependencies
+    xml_content += '''
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>'''
+    
+    return xml_content
+
+def generate_cmake_lists(package: PackageConfig) -> str:
+    """Generate CMakeLists.txt content"""
+    cmake_content = f'''cmake_minimum_required(VERSION 3.8)
+project({package.name})
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
+'''
+    
+    dependencies = package.dependencies or []
+    for dep in dependencies:
+        cmake_content += f'find_package({dep} REQUIRED)\n'
+    
+    cmake_content += '''
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_package()
+'''
+    
+    return cmake_content
+
+def generate_cpp_node(package: PackageConfig, node_type: str) -> str:
+    """Generate C++ node code"""
+    class_name = f"{node_type.title().replace('_', '')}Node"
+    
+    if node_type == "publisher":
+        return f'''#include <chrono>
+#include <functional>
+#include <memory>
+#include <string>
+
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+
+using namespace std::chrono_literals;
+
+class {class_name} : public rclcpp::Node
+{{
+  public:
+    {class_name}()
+    : Node("{package.name}_{node_type}")
+    {{
+      publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
+      timer_ = this->create_wall_timer(
+        500ms, std::bind(&{class_name}::timer_callback, this));
+    }}
+
+  private:
+    void timer_callback()
+    {{
+      auto message = std_msgs::msg::String();
+      message.data = "Hello, world! " + std::to_string(count_++);
+      RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+      publisher_->publish(message);
+    }}
+    
+    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+    size_t count_ = 0;
+}};
+
+int main(int argc, char * argv[])
+{{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<{class_name}>());
+  rclcpp::shutdown();
+  return 0;
+}}'''
+    
+    elif node_type == "subscriber":
+        return f'''#include <functional>
+#include <memory>
+
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+
+using std::placeholders::_1;
+
+class {class_name} : public rclcpp::Node
+{{
+  public:
+    {class_name}()
+    : Node("{package.name}_{node_type}")
+    {{
+      subscription_ = this->create_subscription<std_msgs::msg::String>(
+        "topic", 10, std::bind(&{class_name}::topic_callback, this, _1));
+    }}
+
+  private:
+    void topic_callback(const std_msgs::msg::String & msg) const
+    {{
+      RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.data.c_str());
+    }}
+    
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
+}};
+
+int main(int argc, char * argv[])
+{{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<{class_name}>());
+  rclcpp::shutdown();
+  return 0;
+}}'''
+    
+    return f"// {node_type} node implementation placeholder"
+
+def generate_python_node(package: PackageConfig, node_type: str) -> str:
+    """Generate Python node code"""
+    class_name = f"{node_type.title().replace('_', '')}Node"
+    
+    if node_type == "publisher":
+        return f'''#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class {class_name}(Node):
+    def __init__(self):
+        super().__init__('{package.name}_{node_type}')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = f'Hello World: {{self.i}}'
+        self.publisher_.publish(msg)
+        self.get_logger().info(f'Publishing: "{{msg.data}}"')
+        self.i += 1
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = {class_name}()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+'''
+    
+    elif node_type == "subscriber":
+        return f'''#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class {class_name}(Node):
+    def __init__(self):
+        super().__init__('{package.name}_{node_type}')
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+
+    def listener_callback(self, msg):
+        self.get_logger().info(f'I heard: "{{msg.data}}"')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = {class_name}()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+'''
+    
+    return f"# {node_type} node implementation placeholder"
+
+# ROSphere API Endpoints
+@app.post("/rosphere/generate-project", response_model=ProjectGenerationResponse)
+def generate_ros2_project(request: ProjectGenerationRequest):
+    """Generate a ROS 2 project with workspace and package"""
+    try:
+        generated_files = []
+        workspace = request.workspace
+        package = request.package
+        
+        # Generate package.xml
+        package_xml = generate_package_xml(package)
+        generated_files.append(GeneratedFile(
+            path=f"{workspace.path}/src/{package.name}/package.xml",
+            content=package_xml,
+            type="package_xml"
+        ))
+        
+        # Generate CMakeLists.txt
+        cmake_lists = generate_cmake_lists(package)
+        generated_files.append(GeneratedFile(
+            path=f"{workspace.path}/src/{package.name}/CMakeLists.txt",
+            content=cmake_lists,
+            type="cmake"
+        ))
+        
+        # Generate setup.py for Python packages
+        if package.language in ["python", "both"]:
+            setup_py = f'''from setuptools import find_packages, setup
+
+package_name = '{package.name}'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='{package.maintainer}',
+    maintainer_email='{package.email}',
+    description='{package.description or f"The {package.name} package"}',
+    license='{package.license}',
+    tests_require=['pytest'],
+    entry_points={{
+        'console_scripts': [
+        ],
+    }},
+)
+'''
+            generated_files.append(GeneratedFile(
+                path=f"{workspace.path}/src/{package.name}/setup.py",
+                content=setup_py,
+                type="setup_py"
+            ))
+        
+        # Generate node files based on selected node types
+        if package.nodeTypes:
+            for node_type in package.nodeTypes:
+                if package.language in ["cpp", "both"]:
+                    cpp_node = generate_cpp_node(package, node_type)
+                    generated_files.append(GeneratedFile(
+                        path=f"{workspace.path}/src/{package.name}/src/{node_type}_node.cpp",
+                        content=cpp_node,
+                        type="cpp_node"
+                    ))
+                
+                if package.language in ["python", "both"]:
+                    python_node = generate_python_node(package, node_type)
+                    generated_files.append(GeneratedFile(
+                        path=f"{workspace.path}/src/{package.name}/{package.name}/{node_type}_node.py",
+                        content=python_node,
+                        type="python_node"
+                    ))
+        
+        # Generate basic launch file
+        launch_content = f'''from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='{package.name}',
+            executable='{package.name}_node',
+            name='{package.name}_node'
+        ),
+    ])
+'''
+        generated_files.append(GeneratedFile(
+            path=f"{workspace.path}/src/{package.name}/launch/{package.name}_launch.py",
+            content=launch_content,
+            type="launch_file"
+        ))
+        
+        return ProjectGenerationResponse(
+            success=True,
+            message="Project generated successfully",
+            files=generated_files,
+            workspace_path=workspace.path
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Project generation failed: {str(e)}")
+
+@app.get("/rosphere/templates")
+def get_available_templates():
+    """Get available ROS 2 project templates"""
+    return {
+        "node_types": [
+            {"id": "publisher", "name": "Publisher Node", "description": "Publishes messages to a topic"},
+            {"id": "subscriber", "name": "Subscriber Node", "description": "Subscribes to messages from a topic"},
+            {"id": "service_server", "name": "Service Server", "description": "Provides a service"},
+            {"id": "service_client", "name": "Service Client", "description": "Calls a service"},
+            {"id": "action_server", "name": "Action Server", "description": "Provides an action"},
+            {"id": "action_client", "name": "Action Client", "description": "Calls an action"},
+            {"id": "timer_node", "name": "Timer Node", "description": "Executes code at regular intervals"},
+            {"id": "lifecycle_node", "name": "Lifecycle Node", "description": "Managed lifecycle node"},
+        ],
+        "languages": ["cpp", "python", "both"],
+        "ros_distributions": ["humble", "iron", "jazzy"],
+        "build_tools": ["colcon", "ament_cmake", "ament_python"],
+        "licenses": ["MIT", "Apache-2.0", "BSD-3-Clause", "GPL-3.0"]
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", reload=True)
