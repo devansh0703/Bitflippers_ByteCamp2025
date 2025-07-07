@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/dashboard/page": "/dashboard",
+  "/leaderboard/page": "/leaderboard",
+  "/moderator/page": "/moderator",
+  "/login/page": "/login",
+  "/page": "/",
+  "/submissions/[submissionId]/page": "/submissions/[submissionId]",
+  "/submissions/page": "/submissions"
+}
