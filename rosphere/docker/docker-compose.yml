@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  rosphere:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"  # Frontend
+      - "8000:8000"  # Backend API
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $HOME/.ros:/root/.ros:rw
+      - ./workspace:/workspace:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - ROS_DOMAIN_ID=0
+    network_mode: host
+    privileged: true
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: rosphere
+      POSTGRES_USER: rosphere
+      POSTGRES_PASSWORD: rosphere_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

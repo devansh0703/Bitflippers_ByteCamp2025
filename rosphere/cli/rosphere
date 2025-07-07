@@ -1,0 +1,263 @@
+#!/usr/bin/env python3
+
+import click
+import os
+import json
+import subprocess
+from pathlib import Path
+import requests
+from jinja2 import Template
+
+@click.group()
+def cli():
+    """ROSphere CLI - ROS 2 Development Tools"""
+    pass
+
+@cli.command()
+@click.argument('project_name')
+@click.option('--workspace', '-w', default=os.getcwd(), help='Workspace directory')
+@click.option('--distro', '-d', default='humble', help='ROS 2 distribution')
+@click.option('--description', help='Project description')
+def create(project_name, workspace, distro, description):
+    """Create a new ROS 2 project workspace"""
+    click.echo(f"Creating ROS 2 project: {project_name}")
+    
+    workspace_path = Path(workspace) / project_name
+    src_path = workspace_path / "src"
+    
+    try:
+        # Create workspace directory structure
+        workspace_path.mkdir(parents=True, exist_ok=True)
+        src_path.mkdir(exist_ok=True)
+        
+        # Create basic package
+        package_path = src_path / project_name
+        package_path.mkdir(exist_ok=True)
+        
+        # Generate package.xml
+        package_xml = generate_package_xml(project_name, description or "ROS 2 package")
+        (package_path / "package.xml").write_text(package_xml)
+        
+        # Generate CMakeLists.txt
+        cmake_content = generate_cmake_lists(project_name)
+        (package_path / "CMakeLists.txt").write_text(cmake_content)
+        
+        # Create src directory for source files
+        (package_path / "src").mkdir(exist_ok=True)
+        
+        # Create launch directory
+        launch_path = package_path / "launch"
+        launch_path.mkdir(exist_ok=True)
+        
+        # Generate basic launch file
+        launch_content = generate_launch_file(project_name)
+        (launch_path / f"{project_name}.launch.py").write_text(launch_content)
+        
+        click.echo(f"✓ Project created at: {workspace_path}")
+        click.echo(f"✓ Package: {project_name}")
+        click.echo("Next steps:")
+        click.echo(f"  cd {workspace_path}")
+        click.echo("  colcon build")
+        click.echo("  source install/setup.bash")
+        
+        # Register with ROSphere backend
+        try:
+            response = requests.post("http://localhost:8000/api/projects", json={
+                "name": project_name,
+                "description": description or "Created via ROSphere CLI",
+                "ros2_distro": distro,
+                "workspace_path": str(workspace_path),
+                "packages": [project_name]
+            })
+            if response.status_code == 200:
+                click.echo("✓ Project registered with ROSphere")
+        except requests.exceptions.RequestException:
+            click.echo("⚠ Could not register with ROSphere backend (is it running?)")
+            
+    except Exception as e:
+        click.echo(f"Error creating project: {e}", err=True)
+
+@cli.command()
+@click.argument('template_type', type=click.Choice(['publisher', 'subscriber', 'service', 'action']))
+@click.argument('node_name')
+@click.option('--topic', help='Topic name')
+@click.option('--msg-type', help='Message type (e.g. std_msgs/String)')
+@click.option('--language', '-l', default='python', type=click.Choice(['python', 'cpp']))
+@click.option('--package', help='Package name')
+def generate(template_type, node_name, topic, msg_type, language, package):
+    """Generate ROS 2 node boilerplate code"""
+    click.echo(f"Generating {template_type} node: {node_name}")
+    
+    if not package:
+        # Try to detect package from current directory
+        current_dir = Path.cwd()
+        if (current_dir / "package.xml").exists():
+            package = current_dir.name
+        else:
+            click.echo("Error: No package specified and package.xml not found", err=True)
+            return
+    
+    try:
+        # Generate code using backend API
+        response = requests.post("http://localhost:8000/api/generate/code", json={
+            "template_type": template_type,
+            "node_name": node_name,
+            "topic_name": topic,
+            "message_type": msg_type,
+            "language": language
+        })
+        
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Write generated code to file
+            file_extension = "py" if language == "python" else "cpp"
+            filename = f"{node_name}.{file_extension}"
+            filepath = Path("src") / filename
+            
+            with open(filepath, "w") as f:
+                f.write(result["content"])
+            
+            click.echo(f"✓ Generated {filepath}")
+            
+            if language == "python":
+                # Make Python files executable
+                os.chmod(filepath, 0o755)
+                click.echo("✓ Made executable")
+        else:
+            click.echo("Error: Failed to generate code", err=True)
+            
+    except requests.exceptions.RequestException:
+        click.echo("Error: Could not connect to ROSphere backend", err=True)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+
+@cli.command()
+def monitor():
+    """Start ROS 2 system monitoring"""
+    click.echo("Starting ROS 2 system monitor...")
+    click.echo("Open http://localhost:3000/monitoring for web interface")
+    
+    try:
+        # Check if ROS 2 is available
+        result = subprocess.run(['ros2', 'node', 'list'], 
+                              capture_output=True, text=True, timeout=5)
+        
+        if result.returncode == 0:
+            nodes = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            click.echo(f"Found {len(nodes)} active nodes:")
+            for node in nodes:
+                click.echo(f"  • {node}")
+        else:
+            click.echo("No ROS 2 nodes found or ROS 2 not sourced")
+            
+    except subprocess.TimeoutExpired:
+        click.echo("Timeout waiting for ROS 2 response")
+    except FileNotFoundError:
+        click.echo("ROS 2 not found. Please source your ROS 2 installation.")
+
+@cli.command()
+@click.option('--filter', help='Filter logs by level (info, warn, error)')
+@click.option('--node', help='Filter logs by node name')
+@click.option('--follow', '-f', is_flag=True, help='Follow log output')
+def logs(filter, node, follow):
+    """View ROS 2 logs"""
+    click.echo("ROSphere Log Viewer")
+    click.echo("==================")
+    
+    if follow:
+        click.echo("Following logs (Ctrl+C to stop)...")
+        # In a real implementation, this would tail ROS 2 logs
+        click.echo("Log streaming not implemented yet")
+    else:
+        click.echo("Recent logs:")
+        click.echo("[INFO] [sample_node]: Node started successfully")
+        click.echo("[WARN] [navigation]: Path planning timeout")
+        click.echo("[ERROR] [camera_driver]: Failed to connect to camera")
+
+# Template generation functions
+def generate_package_xml(package_name, description):
+    template = Template('''<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>{{ package_name }}</name>
+  <version>0.0.0</version>
+  <description>{{ description }}</description>
+  <maintainer email="user@example.com">user</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
+''')
+    return template.render(package_name=package_name, description=description)
+
+def generate_cmake_lists(package_name):
+    template = Template('''cmake_minimum_required(VERSION 3.8)
+project({{ package_name }})
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(std_msgs REQUIRED)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+# Install Python modules
+ament_python_install_package(${PROJECT_NAME})
+
+# Install Python executables
+install(PROGRAMS
+  src/${PROJECT_NAME}_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install launch files
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_package()
+''')
+    return template.render(package_name=package_name)
+
+def generate_launch_file(package_name):
+    template = Template('''#!/usr/bin/env python3
+
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='{{ package_name }}',
+            executable='{{ package_name }}_node.py',
+            name='{{ package_name }}_node',
+            output='screen',
+            parameters=[],
+            remappings=[]
+        ),
+    ])
+''')
+    return template.render(package_name=package_name)
+
+if __name__ == '__main__':
+    cli()

@@ -20,10 +20,6 @@ import {
   FileText,
   Award,
   ShieldAlert,
-  FolderOpen,
-  Settings,
-  Activity,
-  Code
 } from "lucide-react"
 import "./globals.css"
 
@@ -46,12 +42,10 @@ export default function ClientLayout({ children }) {
   }
 
   const navLinks = [
-    { href: "/", label: "Dashboard", icon: <BarChart2 className="w-4 h-4 mr-2" /> },
-    { href: "/projects", label: "Projects", icon: <FolderOpen className="w-4 h-4 mr-2" /> },
-    { href: "/launch-composer", label: "Launch Composer", icon: <Settings className="w-4 h-4 mr-2" /> },
-    { href: "/monitoring", label: "Monitoring", icon: <Activity className="w-4 h-4 mr-2" /> },
-    { href: "/code-generator", label: "Code Generator", icon: <Code className="w-4 h-4 mr-2" /> },
-    { href: "/logs", label: "Logs", icon: <FileText className="w-4 h-4 mr-2" /> },
+    { href: "/", label: "Home", icon: <BarChart2 className="w-4 h-4 mr-2" /> },
+    { href: "/dashboard", label: "Dashboard", icon: <User className="w-4 h-4 mr-2" /> },
+    { href: "/submissions", label: "Submissions", icon: <FileText className="w-4 h-4 mr-2" /> },
+    { href: "/leaderboard", label: "Leaderboard", icon: <Award className="w-4 h-4 mr-2" /> },
   ]
 
   // Only add the Moderator link if the logged-in user is a moderator.
@@ -66,10 +60,10 @@ export default function ClientLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>ROSphere | ROS 2 Development Platform</title>
+        <title>Smart Circular Cities | Mumbai</title>
         <meta
           name="description"
-          content="Complete ROS 2 Operations & Development Sphere - Streamline your ROS 2 workflow"
+          content="Empowering Mumbai's citizens to address waste management, flood control, and energy poverty"
         />
       </head>
       <body className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -80,11 +74,11 @@ export default function ClientLayout({ children }) {
                 <Link href="/" className="flex items-center space-x-2">
                   <div className="relative h-8 w-8 overflow-hidden rounded-full bg-primary">
                     <div className="absolute inset-0 flex items-center justify-center text-primary-foreground font-bold">
-                      RS
+                      SC
                     </div>
                   </div>
                   <span className="hidden font-bold sm:inline-block">
-                    ROSphere
+                    Smart Circular Cities
                   </span>
                 </Link>
               </div>

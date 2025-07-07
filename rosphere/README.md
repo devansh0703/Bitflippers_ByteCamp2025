@@ -2,8 +2,6 @@
 
 ROSphere is an intuitive, web-based development environment for ROS 2 that streamlines project creation, launch file management, code generation, and real-time monitoring.
 
-![ROSphere Homepage](https://github.com/user-attachments/assets/e897f3e3-1a83-44ea-b66a-8c9dfb34c398)
-
 ## Features
 
 ### 🎯 Intuitive Configuration & Project Management
@@ -15,8 +13,6 @@ ROSphere is an intuitive, web-based development environment for ROS 2 that strea
 - **Real-time Monitoring Dashboard**: Live topology visualization and performance metrics
 - **Centralized Logging System**: Aggregated logs with search and filtering
 - **QoS Analysis**: Automatic detection and recommendations
-
-![ROSphere Monitoring](https://github.com/user-attachments/assets/8a07beb5-89a7-4640-a3dc-92fe13e714a9)
 
 ## Quick Start
 
@@ -49,11 +45,9 @@ pip install -r requirements.txt
 # Backend (FastAPI)
 python main.py
 
-# Frontend (Next.js) - in another terminal
+# Frontend (Next.js)
 npm run dev
 ```
-
-5. Open your browser to http://localhost:3000
 
 ## Architecture
 
@@ -72,38 +66,19 @@ rosphere/
 
 ## CLI Usage
 
-The ROSphere CLI provides powerful command-line tools for ROS 2 development:
-
 ```bash
 # Create new ROS 2 project
-python rosphere/cli/rosphere create my_robot_project --workspace /path/to/ws
+rosphere create my_robot_project
 
 # Generate boilerplate code
-python rosphere/cli/rosphere generate publisher my_publisher --topic /cmd_vel --msg-type geometry_msgs/Twist
+rosphere generate publisher my_topic
 
 # Monitor ROS 2 system
-python rosphere/cli/rosphere monitor
+rosphere monitor
 
 # View logs
-python rosphere/cli/rosphere logs --filter error
+rosphere logs --filter error
 ```
-
-## Web Interface
-
-### Project Creation
-- Navigate to `/projects` to create and manage ROS 2 workspaces
-- Form-driven configuration with automatic boilerplate generation
-- Support for multiple ROS 2 distributions
-
-### Real-time Monitoring  
-- Navigate to `/monitoring` to view live system metrics
-- WebSocket-based real-time updates
-- Node and topic visualization with performance metrics
-
-### Code Generation
-- Navigate to `/code-generator` for template-based code generation
-- Support for publishers, subscribers, services, and actions
-- Multi-language support (Python/C++)
 
 ## API Endpoints
 
@@ -111,40 +86,7 @@ python rosphere/cli/rosphere logs --filter error
 - `POST /api/projects` - Create new project
 - `GET /api/nodes` - List active ROS 2 nodes
 - `GET /api/topics` - List topics with QoS info
-- `POST /api/generate/code` - Generate code templates
 - `WebSocket /ws/monitor` - Real-time monitoring data
-
-## Docker Deployment
-
-```bash
-cd rosphere/docker
-docker-compose up -d
-```
-
-This will start:
-- ROSphere web interface on port 3000
-- FastAPI backend on port 8000
-- PostgreSQL database on port 5432
-
-## Development
-
-### Frontend Development
-```bash
-npm run dev        # Start development server
-npm run build      # Build for production
-npm run lint       # Run ESLint
-```
-
-### Backend Development
-```bash
-python main.py     # Start FastAPI server with hot reload
-```
-
-### Testing
-```bash
-npm test           # Run frontend tests
-pytest             # Run backend tests
-```
 
 ## Contributing
 
@@ -157,7 +99,3 @@ pytest             # Run backend tests
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-**ROSphere** - Streamline your ROS 2 development workflow with integrated project management, real-time monitoring, and intelligent code generation.

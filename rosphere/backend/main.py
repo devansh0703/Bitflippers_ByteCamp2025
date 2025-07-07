@@ -157,21 +157,19 @@ async def generate_code(request: CodeGenerationRequest):
 @app.get("/api/nodes")
 async def get_ros2_nodes():
     # Mock ROS 2 node data - in real implementation, this would query ROS 2
-    import random
     return [
-        {"name": "/teleop_node", "namespace": "/", "status": "active", "cpu": round(random.uniform(1.0, 5.0), 1), "memory": round(random.uniform(30.0, 60.0), 1)},
-        {"name": "/camera_driver", "namespace": "/sensors", "status": "active", "cpu": round(random.uniform(10.0, 20.0), 1), "memory": round(random.uniform(100.0, 150.0), 1)},
-        {"name": "/navigation", "namespace": "/nav", "status": "active", "cpu": round(random.uniform(5.0, 15.0), 1), "memory": round(random.uniform(70.0, 120.0), 1)}
+        {"name": "/teleop_node", "namespace": "/", "status": "active", "cpu": 2.1, "memory": 45.2},
+        {"name": "/camera_driver", "namespace": "/sensors", "status": "active", "cpu": 15.3, "memory": 120.5},
+        {"name": "/navigation", "namespace": "/nav", "status": "active", "cpu": 8.7, "memory": 89.1}
     ]
 
 @app.get("/api/topics")
 async def get_ros2_topics():
     # Mock ROS 2 topic data
-    import random
     return [
-        {"name": "/cmd_vel", "type": "geometry_msgs/Twist", "publishers": 1, "subscribers": 2, "hz": round(random.uniform(8.0, 12.0), 1)},
-        {"name": "/camera/image_raw", "type": "sensor_msgs/Image", "publishers": 1, "subscribers": 1, "hz": round(random.uniform(28.0, 32.0), 1)},
-        {"name": "/scan", "type": "sensor_msgs/LaserScan", "publishers": 1, "subscribers": 3, "hz": round(random.uniform(18.0, 22.0), 1)}
+        {"name": "/cmd_vel", "type": "geometry_msgs/Twist", "publishers": 1, "subscribers": 2, "hz": 10.0},
+        {"name": "/camera/image_raw", "type": "sensor_msgs/Image", "publishers": 1, "subscribers": 1, "hz": 30.0},
+        {"name": "/scan", "type": "sensor_msgs/LaserScan", "publishers": 1, "subscribers": 3, "hz": 20.0}
     ]
 
 @app.get("/api/services")
@@ -186,7 +184,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            import random
             # Send real-time monitoring data
             monitoring_data = {
                 "type": "monitoring_update",
@@ -194,9 +191,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 "data": {
                     "nodes": await get_ros2_nodes(),
                     "topics": await get_ros2_topics(),
-                    "cpu_usage": round(random.uniform(30.0, 70.0), 1),
-                    "memory_usage": round(random.uniform(50.0, 80.0), 1),
-                    "network_io": {"rx": round(random.uniform(0.5, 3.0), 1), "tx": round(random.uniform(1.0, 4.0), 1)}
+                    "cpu_usage": 45.2,
+                    "memory_usage": 68.5,
+                    "network_io": {"rx": 1.2, "tx": 2.1}
                 }
             }
             await manager.send_personal_message(json.dumps(monitoring_data), websocket)

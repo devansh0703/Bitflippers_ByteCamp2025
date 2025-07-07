@@ -1,19 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trash2, Droplet, Zap, ArrowRight, Users, FileCheck, Award } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { 
+  FolderOpen, 
+  Activity, 
+  Settings, 
+  Code, 
+  FileText, 
+  ArrowRight, 
+  Play,
+  Monitor,
+  Cpu,
+  MemoryStick
+} from "lucide-react"
 
 export default function HomePage() {
   const [stats, setStats] = useState({
-    users: 1250,
-    submissions: 3780,
-    resolved: 2145,
+    projects: 12,
+    activeNodes: 8,
+    topics: 24,
   })
 
   const fadeIn = {
@@ -35,19 +45,19 @@ export default function HomePage() {
             >
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                  Smart Circular Cities
+                  ROSphere
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  Empowering Mumbai's citizens to address waste management, flood control, and energy poverty through
-                  community participation.
+                  Complete ROS 2 Operations & Development Sphere. Streamline your ROS 2 workflow with 
+                  intuitive project management, visual launch composition, and real-time monitoring.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Button asChild size="lg">
-                  <Link href="/submissions">Report an Issue</Link>
+                  <Link href="/projects">Create Project</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link href="/dashboard">View Dashboard</Link>
+                  <Link href="/monitoring">Monitor System</Link>
                 </Button>
               </div>
             </motion.div>
@@ -57,14 +67,13 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden rounded-lg">
-                <Image
-                  src="/placeholder.svg?height=400&width=600"
-                  alt="Mumbai cityscape"
-                  fill
-                  className="object-cover"
-                  priority
-                />
+              <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <div className="w-24 h-24 mx-auto bg-primary rounded-full flex items-center justify-center">
+                    <Settings className="w-12 h-12 text-primary-foreground animate-spin-slow" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700">ROS 2 Development Made Easy</h3>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -81,9 +90,9 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <Users className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="text-3xl font-bold">{stats.users.toLocaleString()}</h3>
-              <p className="text-muted-foreground">Active Citizens</p>
+              <FolderOpen className="h-10 w-10 mx-auto mb-4 text-primary" />
+              <h3 className="text-3xl font-bold">{stats.projects}</h3>
+              <p className="text-muted-foreground">Active Projects</p>
             </motion.div>
             <motion.div
               className="stats-card bg-card shadow-sm rounded-lg p-6"
@@ -91,9 +100,9 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
-              <FileCheck className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="text-3xl font-bold">{stats.submissions.toLocaleString()}</h3>
-              <p className="text-muted-foreground">Issues Reported</p>
+              <Activity className="h-10 w-10 mx-auto mb-4 text-primary" />
+              <h3 className="text-3xl font-bold">{stats.activeNodes}</h3>
+              <p className="text-muted-foreground">Running Nodes</p>
             </motion.div>
             <motion.div
               className="stats-card bg-card shadow-sm rounded-lg p-6"
@@ -101,240 +110,201 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
             >
-              <Award className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="text-3xl font-bold">{stats.resolved.toLocaleString()}</h3>
-              <p className="text-muted-foreground">Problems Solved</p>
+              <Monitor className="h-10 w-10 mx-auto mb-4 text-primary" />
+              <h3 className="text-3xl font-bold">{stats.topics}</h3>
+              <p className="text-muted-foreground">Active Topics</p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Key Issues Section */}
+      {/* Core Features Section */}
       <section className="py-12 md:py-16">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Key Challenges</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Core Features</h2>
             <p className="max-w-[700px] text-muted-foreground md:text-xl">
-              Mumbai faces critical sustainability challenges that require innovative community-driven solutions.
+              Everything you need for efficient ROS 2 development in one integrated platform.
             </p>
           </div>
 
-          <Tabs defaultValue="waste" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="waste">Waste Crisis</TabsTrigger>
-              <TabsTrigger value="flood">Flood Vulnerability</TabsTrigger>
-              <TabsTrigger value="energy">Energy Poverty</TabsTrigger>
-            </TabsList>
-            <TabsContent value="waste" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-red-50 text-red-700 border-red-200">
-                        <Trash2 className="mr-1 h-3 w-3" />
-                        Critical Issue
-                      </div>
-                      <h3 className="text-2xl font-bold">Waste Management Crisis</h3>
-                      <p className="text-muted-foreground">
-                        Mumbai generates over 7,000 tons of waste daily, with limited segregation and recycling
-                        infrastructure. Improper waste disposal leads to environmental degradation, health hazards, and
-                        clogged waterways that worsen flooding.
-                      </p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-red-500" />
-                          <span>Overflowing landfills reaching critical capacity</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-amber-500" />
-                          <span>Limited waste segregation at source</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-green-500" />
-                          <span>Growing potential for circular economy solutions</span>
-                        </li>
-                      </ul>
-                      <Button asChild>
-                        <Link href="/submissions">
-                          Report Waste Issues
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                    <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder.svg?height=300&width=500"
-                        alt="Waste management in Mumbai"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="flood" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 border-blue-200">
-                        <Droplet className="mr-1 h-3 w-3" />
-                        Urgent Challenge
-                      </div>
-                      <h3 className="text-2xl font-bold">Flood Vulnerability</h3>
-                      <p className="text-muted-foreground">
-                        Mumbai's low-lying areas face severe flooding during monsoons, exacerbated by clogged drainage
-                        systems, encroachment on natural waterways, and rising sea levels due to climate change.
-                      </p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-red-500" />
-                          <span>Critical infrastructure frequently submerged</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-amber-500" />
-                          <span>Inadequate drainage maintenance</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-green-500" />
-                          <span>Community-based early warning systems showing promise</span>
-                        </li>
-                      </ul>
-                      <Button asChild>
-                        <Link href="/submissions">
-                          Report Flood Issues
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                    <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder.svg?height=300&width=500"
-                        alt="Flooding in Mumbai"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="energy" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-yellow-50 text-yellow-700 border-yellow-200">
-                        <Zap className="mr-1 h-3 w-3" />
-                        Growing Concern
-                      </div>
-                      <h3 className="text-2xl font-bold">Energy Poverty</h3>
-                      <p className="text-muted-foreground">
-                        Despite being India's financial capital, many Mumbai communities face energy insecurity with
-                        unreliable access to clean, affordable power. This impacts education, health services, and
-                        economic opportunities.
-                      </p>
-                      <ul className="space-y-2">
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-red-500" />
-                          <span>Informal settlements with limited grid access</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-amber-500" />
-                          <span>High energy costs for low-income households</span>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="mr-2 h-4 w-4 rounded-full bg-green-500" />
-                          <span>Emerging distributed renewable energy solutions</span>
-                        </li>
-                      </ul>
-                      <Button asChild>
-                        <Link href="/submissions">
-                          Report Energy Issues
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                    <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder.svg?height=300&width=500"
-                        alt="Energy solutions in Mumbai"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FolderOpen className="h-5 w-5 text-primary" />
+                  Project Wizard
+                </CardTitle>
+                <CardDescription>
+                  Create ROS 2 workspaces with guided setup and automatic boilerplate generation.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full">
+                  <Link href="/projects">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-primary" />
+                  Launch Composer
+                </CardTitle>
+                <CardDescription>
+                  Visual drag-and-drop interface for creating and managing ROS 2 launch files.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/launch-composer">
+                    Compose Launch Files
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Real-time Monitor
+                </CardTitle>
+                <CardDescription>
+                  Live monitoring of nodes, topics, services, and system performance metrics.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/monitoring">
+                    View Dashboard
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Code className="h-5 w-5 text-primary" />
+                  Code Generator
+                </CardTitle>
+                <CardDescription>
+                  Generate publisher, subscriber, service, and action templates in Python or C++.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/code-generator">
+                    Generate Code
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Centralized Logs
+                </CardTitle>
+                <CardDescription>
+                  Aggregate and search through logs from all your ROS 2 nodes in one place.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/logs">
+                    View Logs
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Play className="h-5 w-5 text-primary" />
+                  CLI Tools
+                </CardTitle>
+                <CardDescription>
+                  Command-line interface for project creation, monitoring, and code generation.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Badge variant="secondary" className="w-full justify-center">
+                  rosphere --help
+                </Badge>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* System Status Section */}
       <section className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">How It Works</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">System Status</h2>
             <p className="max-w-[700px] text-muted-foreground md:text-xl">
-              Join our community-driven platform to report issues, propose solutions, and make Mumbai more sustainable.
+              Monitor your ROS 2 ecosystem at a glance with real-time metrics and health indicators.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 lg:gap-12">
-            <motion.div
-              className="flex flex-col items-center space-y-4 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <span className="text-2xl font-bold text-primary">1</span>
-              </div>
-              <h3 className="text-xl font-bold">Report Issues</h3>
-              <p className="text-muted-foreground">
-                Document waste, flooding, or energy problems in your neighborhood with photos and location data.
-              </p>
-            </motion.div>
-            <motion.div
-              className="flex flex-col items-center space-y-4 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <span className="text-2xl font-bold text-primary">2</span>
-              </div>
-              <h3 className="text-xl font-bold">Propose Solutions</h3>
-              <p className="text-muted-foreground">
-                Contribute ideas and practical solutions to address reported problems in your community.
-              </p>
-            </motion.div>
-            <motion.div
-              className="flex flex-col items-center space-y-4 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <span className="text-2xl font-bold text-primary">3</span>
-              </div>
-              <h3 className="text-xl font-bold">Earn Recognition</h3>
-              <p className="text-muted-foreground">
-                Get points and climb the leaderboard as your contributions make a real impact on Mumbai's
-                sustainability.
-              </p>
-            </motion.div>
-          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cpu className="h-5 w-5 text-green-500" />
+                  System Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">CPU Usage</span>
+                  <Badge variant="outline">42.3%</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Memory Usage</span>
+                  <Badge variant="outline">67.8%</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Network I/O</span>
+                  <Badge variant="outline">2.1 MB/s</Badge>
+                </div>
+              </CardContent>
+            </Card>
 
-          <div className="mt-12 text-center">
-            <Button asChild size="lg">
-              <Link href="/login">Join the Movement</Link>
-            </Button>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-500" />
+                  ROS 2 Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Active Nodes</span>
+                  <Badge variant="default">8</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Message Rate</span>
+                  <Badge variant="default">156 Hz</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Services</span>
+                  <Badge variant="default">12</Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -345,27 +315,35 @@ export default function HomePage() {
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Ready to Make a Difference?
+                Ready to Accelerate Your ROS 2 Development?
               </h2>
               <p className="text-muted-foreground md:text-xl">
-                Join thousands of Mumbai citizens who are working together to create a more sustainable, resilient city.
+                Join developers who are building the future of robotics with ROSphere's integrated development environment.
               </p>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Button asChild size="lg">
-                  <Link href="/login">Get Started</Link>
+                  <Link href="/projects">Start Building</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link href="/leaderboard">View Impact</Link>
+                  <Link href="/monitoring">Explore Dashboard</Link>
                 </Button>
               </div>
             </div>
-            <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-              <Image
-                src="/placeholder.svg?height=300&width=500"
-                alt="Community action in Mumbai"
-                fill
-                className="object-cover"
-              />
+            <div className="relative w-full h-[300px] overflow-hidden rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <div className="flex gap-4 justify-center">
+                  <div className="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <FolderOpen className="w-8 h-8 text-primary" />
+                  </div>
+                  <div className="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Activity className="w-8 h-8 text-primary" />
+                  </div>
+                  <div className="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Code className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-700">Integrated ROS 2 Workflow</h3>
+              </div>
             </div>
           </div>
         </div>

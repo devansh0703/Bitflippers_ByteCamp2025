@@ -4,3 +4,10 @@ uvicorn
 supabase
 typing
 google.generativeai
+click
+jinja2
+websockets
+rclpy
+rosidl-runtime-py
+rosbag2-py
+psutil
