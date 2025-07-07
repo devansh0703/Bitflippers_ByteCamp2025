@@ -1,0 +1,5 @@
+{
+  "/rosphere/page": "app/rosphere/page.js",
+  "/rosphere/wizard/page": "app/rosphere/wizard/page.js",
+  "/rosphere/composer/page": "app/rosphere/composer/page.js"
+}

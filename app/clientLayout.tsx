@@ -20,6 +20,7 @@ import {
   FileText,
   Award,
   ShieldAlert,
+  Settings,
 } from "lucide-react"
 import "./globals.css"
 
@@ -46,6 +47,7 @@ export default function ClientLayout({ children }) {
     { href: "/dashboard", label: "Dashboard", icon: <User className="w-4 h-4 mr-2" /> },
     { href: "/submissions", label: "Submissions", icon: <FileText className="w-4 h-4 mr-2" /> },
     { href: "/leaderboard", label: "Leaderboard", icon: <Award className="w-4 h-4 mr-2" /> },
+    { href: "/rosphere", label: "ROSphere", icon: <Settings className="w-4 h-4 mr-2" /> },
   ]
 
   // Only add the Moderator link if the logged-in user is a moderator.
@@ -60,10 +62,10 @@ export default function ClientLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Smart Circular Cities | Mumbai</title>
+        <title>Smart Circular Cities | Mumbai & ROSphere</title>
         <meta
           name="description"
-          content="Empowering Mumbai's citizens to address waste management, flood control, and energy poverty"
+          content="Empowering Mumbai's citizens to address waste management, flood control, and energy poverty. ROS 2 development tools for robotics."
         />
       </head>
       <body className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -90,7 +92,7 @@ export default function ClientLayout({ children }) {
                     key={link.href}
                     href={link.href}
                     className={`flex items-center text-sm font-medium transition-colors hover:text-primary ${
-                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                      pathname === link.href || pathname.startsWith(link.href + "/") ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
                     {link.icon}
@@ -140,7 +142,7 @@ export default function ClientLayout({ children }) {
                       key={link.href}
                       href={link.href}
                       className={`flex items-center text-sm font-medium transition-colors hover:text-primary ${
-                        pathname === link.href ? "text-primary" : "text-muted-foreground"
+                        pathname === link.href || pathname.startsWith(link.href + "/") ? "text-primary" : "text-muted-foreground"
                       }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
@@ -171,7 +173,7 @@ export default function ClientLayout({ children }) {
 
           <footer className="border-t bg-muted/40">
             <div className="container py-8 md:py-12">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Smart Circular Cities</h3>
                   <p className="text-sm text-muted-foreground">
@@ -180,9 +182,15 @@ export default function ClientLayout({ children }) {
                   </p>
                 </div>
                 <div>
+                  <h3 className="text-lg font-semibold mb-4">ROSphere</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Advanced ROS 2 development tools for rapid prototyping and deployment of robotic applications.
+                  </p>
+                </div>
+                <div>
                   <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                   <ul className="space-y-2 text-sm">
-                    {navLinks.map((link) => (
+                    {navLinks.slice(0, 5).map((link) => (
                       <li key={link.href}>
                         <Link href={link.href} className="text-muted-foreground hover:text-primary">
                           {link.label}
@@ -201,7 +209,7 @@ export default function ClientLayout({ children }) {
                 </div>
               </div>
               <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-                © {new Date().getFullYear()} Smart Circular Cities. All rights reserved.
+                © {new Date().getFullYear()} Smart Circular Cities & ROSphere. All rights reserved.
               </div>
             </div>
           </footer>
